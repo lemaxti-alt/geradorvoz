@@ -2,7 +2,7 @@
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 
-$TOKEN_CORRETO = '21979879082';
+$TOKEN_CORRETO = 'DGPu9C1PyUO3NxBHr';
 
 $token = $_POST['token'] ?? '';
 $url   = $_POST['url'] ?? '';
