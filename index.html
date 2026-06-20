@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gerador Premium de Áudio IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05020a;
+  --bg2:#090413;
+  --card:#10091f;
+  --card2:#151025;
+  --line:#2a1646;
+  --line2:#3b2164;
+  --text:#f6f0ff;
+  --muted:#9b8cb7;
+  --dim:#6d5b86;
+  --purple:#8b5cf6;
+  --purple2:#a855f7;
+  --pink:#d946ef;
+  --ok:#22c55e;
+  --err:#ef4444;
+  --warn:#f59e0b;
+  --glass:rgba(255,255,255,.055);
+  --shadow:0 24px 80px rgba(78, 26, 160, .35);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  min-height:100vh;
+  color:var(--text);
+  font-family:'Outfit',system-ui,sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(168,85,247,.25), transparent 34rem),
+    radial-gradient(circle at 80% 10%, rgba(217,70,239,.16), transparent 32rem),
+    linear-gradient(160deg,#030107 0%,#080410 45%,#05020a 100%);
+  overflow-x:hidden;
+}
+body::before{
+  content:"";
+  position:fixed; inset:0; pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:36px 36px;
+  mask-image:linear-gradient(to bottom, black, transparent 78%);
+}
+.app{
+  width:min(1180px,100%);
+  margin:0 auto;
+  padding:clamp(18px,3vw,38px);
+}
+.hero{
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  gap:22px;
+  align-items:stretch;
+  margin-bottom:22px;
+}
+@media(max-width:900px){.hero{grid-template-columns:1fr}}
+.panel{
+  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025));
+  border:1px solid rgba(168,85,247,.28);
+  box-shadow:var(--shadow);
+  border-radius:28px;
+  backdrop-filter: blur(18px);
+}
+.brand{
+  padding:clamp(24px,4vw,42px);
+  position:relative; overflow:hidden;
+}
+.brand::after{
+  content:"";
+  position:absolute; right:-120px; top:-120px;
+  width:280px; height:280px; border-radius:50%;
+  background:radial-gradient(circle,rgba(168,85,247,.42),transparent 68%);
+}
+.badge{
+  display:inline-flex; align-items:center; gap:10px;
+  color:#e9d5ff; font-size:12px; letter-spacing:1.8px;
+  text-transform:uppercase; font-weight:700;
+  background:rgba(139,92,246,.16);
+  border:1px solid rgba(168,85,247,.28);
+  border-radius:999px; padding:10px 14px;
+  margin-bottom:22px;
+}
+.pulse{
+  width:9px;height:9px;border-radius:50%;background:var(--dim);
+  box-shadow:0 0 0 0 rgba(34,197,94,.0);
+}
+.pulse.ok{background:var(--ok);box-shadow:0 0 0 6px rgba(34,197,94,.12)}
+.pulse.err{background:var(--err);box-shadow:0 0 0 6px rgba(239,68,68,.12)}
+h1{
+  font-size:clamp(34px,6vw,72px);
+  line-height:.94; letter-spacing:-2.2px; max-width:760px;
+}
+.grad{
+  background:linear-gradient(90deg,#fff,#d8b4fe 45%,#f0abfc);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.subtitle{
+  color:var(--muted); font-size:clamp(15px,2vw,18px);
+  line-height:1.7; margin-top:18px; max-width:720px;
+}
+.endpoint-card{
+  padding:22px;
+  display:flex; flex-direction:column; gap:14px;
+}
+.label{
+  font-size:11px; letter-spacing:1.4px; text-transform:uppercase;
+  color:var(--muted); font-weight:700;
+}
+.endpoint-line{
+  display:flex; gap:10px; align-items:center;
+}
+input, textarea, select, button{
+  font:inherit;
+}
+.endpoint-line input{
+  flex:1; min-width:0;
+}
+.input, textarea, select{
+  width:100%;
+  background:rgba(5,2,10,.68);
+  color:var(--text);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:14px 15px;
+  outline:none;
+  transition:border-color .2s, box-shadow .2s, background .2s;
+}
+textarea{
+  resize:vertical;
+  min-height:150px;
+  line-height:1.65;
+}
+.input:focus, textarea:focus, select:focus{
+  border-color:rgba(168,85,247,.75);
+  box-shadow:0 0 0 4px rgba(168,85,247,.12);
+  background:rgba(8,3,16,.9);
+}
+select{
+  appearance:none;
+  cursor:pointer;
+  background-image:linear-gradient(45deg,transparent 50%,#a78bfa 50%),linear-gradient(135deg,#a78bfa 50%,transparent 50%);
+  background-position:calc(100% - 18px) 50%,calc(100% - 12px) 50%;
+  background-size:6px 6px,6px 6px;background-repeat:no-repeat;
+}
+.mini-btn,.ghost-btn,.ai-btn,.main-btn{
+  border:0; cursor:pointer; user-select:none;
+  display:inline-flex; justify-content:center; align-items:center; gap:9px;
+  transition:transform .15s, opacity .2s, background .2s, border-color .2s;
+}
+.mini-btn{
+  padding:12px 14px; border-radius:14px;
+  background:rgba(168,85,247,.18);
+  color:#e9d5ff;
+  border:1px solid rgba(168,85,247,.28);
+  white-space:nowrap;
+}
+.mini-btn:hover,.ghost-btn:hover,.ai-btn:hover,.main-btn:hover{transform:translateY(-1px)}
+.grid-main{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 360px;
+  gap:22px;
+  align-items:start;
+}
+@media(max-width:980px){.grid-main{grid-template-columns:1fr}}
+.card{
+  background:linear-gradient(180deg,rgba(20,10,38,.94),rgba(9,4,19,.94));
+  border:1px solid rgba(168,85,247,.25);
+  border-radius:28px;
+  box-shadow:0 18px 70px rgba(0,0,0,.35);
+  overflow:hidden;
+}
+.tabs{
+  display:grid; grid-template-columns:repeat(4,minmax(0,1fr));
+  background:rgba(255,255,255,.025);
+  border-bottom:1px solid rgba(168,85,247,.18);
+}
+.tab{
+  background:transparent; border:0; color:var(--dim);
+  padding:20px 16px; font-weight:800; letter-spacing:2px;
+  text-transform:uppercase; cursor:pointer;
+  border-bottom:2px solid transparent;
+}
+.tab.active{
+  color:var(--text);
+  border-bottom-color:#c084fc;
+  background:linear-gradient(180deg,rgba(168,85,247,.13),transparent);
+}
+.pane{display:none;padding:clamp(18px,3vw,30px);gap:18px;flex-direction:column}
+.pane.active{display:flex}
+.field{display:flex;flex-direction:column;gap:8px}
+.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media(max-width:760px){.tabs{grid-template-columns:1fr 1fr}.tab{font-size:10px;padding:16px 8px}}
+@media(max-width:640px){.row,.row3{grid-template-columns:1fr}}
+.upload-zone{
+  position:relative; cursor:pointer;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+  border:1px dashed rgba(168,85,247,.45);
+  border-radius:20px;
+  padding:26px; text-align:center;
+  min-height:124px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-zone.filled{border-style:solid;background:rgba(139,92,246,.12)}
+.upload-icon{font-size:30px;filter:drop-shadow(0 0 16px rgba(168,85,247,.6))}
+.upload-zone p{color:var(--muted);font-size:14px}
+.upload-zone .fname{color:var(--text);font-weight:700}
+.action-row{
+  display:grid; grid-template-columns:1fr auto;
+  gap:12px; align-items:stretch;
+}
+@media(max-width:560px){.action-row{grid-template-columns:1fr}}
+.main-btn{
+  width:100%; border-radius:18px; min-height:58px;
+  color:#10051f; font-weight:900; letter-spacing:1.7px; text-transform:uppercase;
+  background:linear-gradient(90deg,#f5f3ff,#d8b4fe,#c084fc);
+  box-shadow:0 18px 42px rgba(168,85,247,.24);
+}
+.main-btn:disabled,.ai-btn:disabled,.ghost-btn:disabled,.mini-btn:disabled{
+  opacity:.55; cursor:not-allowed; transform:none;
+}
+.ai-btn{
+  border-radius:18px; min-height:58px; padding:0 20px;
+  color:#fff; font-weight:800; letter-spacing:.8px;
+  background:linear-gradient(135deg,#7c3aed,#c026d3);
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 16px 38px rgba(168,85,247,.22);
+}
+.ghost-btn{
+  border-radius:16px; min-height:44px; padding:0 15px;
+  color:#e9d5ff; background:rgba(168,85,247,.12);
+  border:1px solid rgba(168,85,247,.26);
+}
+.status-box{
+  background:rgba(5,2,10,.55);
+  border:1px solid rgba(168,85,247,.18);
+  border-radius:20px;
+  padding:16px;
+  display:grid; gap:12px;
+}
+.status-top{display:flex;justify-content:space-between;gap:14px;align-items:center}
+.status{font-size:14px;color:var(--muted);line-height:1.5}
+.status.ok{color:#86efac}.status.err{color:#fca5a5}.status.warn{color:#fcd34d}
+.progress-bg{height:8px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
+.progress-fill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,#8b5cf6,#d946ef);transition:width .25s}
+.spin{
+  display:inline-block; width:14px; height:14px;
+  border:2px solid rgba(255,255,255,.2); border-top-color:#fff;
+  border-radius:50%; animation:spin .75s linear infinite;
+}
+.player{
+  display:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.025));
+  border:1px solid rgba(168,85,247,.22);
+  border-radius:22px;
+  padding:16px;
+}
+.player.show{display:block}
+
+/* Player premium com waveform */
+.premium-player{
+  display:grid;
+  gap:14px;
+}
+.wave-wrap{
+  position:relative;
+  width:100%;
+  height:76px;
+  border-radius:18px;
+  background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(0,0,0,.12));
+  border:1px solid rgba(168,85,247,.18);
+  overflow:hidden;
+  padding:12px 10px;
+  cursor:pointer;
+}
+.wave-bars{
+  height:100%;
+  display:flex;
+  align-items:center;
+  gap:3px;
+}
+.wave-bar{
+  flex:1;
+  min-width:2px;
+  border-radius:999px;
+  background:rgba(213,205,226,.58);
+  height:18%;
+  transition:background .12s, opacity .12s, transform .12s;
+}
+.wave-bar.active{
+  background:linear-gradient(180deg,#fb923c,#f97316);
+  box-shadow:0 0 14px rgba(249,115,22,.32);
+}
+.wave-progress-line{
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:0%;
+  border-right:2px solid #f97316;
+  background:linear-gradient(90deg,rgba(249,115,22,.14),rgba(249,115,22,.02));
+  pointer-events:none;
+}
+.premium-time-row{
+  display:flex;
+  justify-content:space-between;
+  color:#c4b5fd;
+  font-size:13px;
+  font-weight:700;
+  margin-top:-6px;
+}
+.player-controls{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:14px;
+}
+@media(max-width:560px){
+  .player-controls{
+    grid-template-columns:1fr;
+    gap:12px;
+  }
+  .control-center,.control-left,.control-right{
+    justify-content:center;
+  }
+}
+.control-left,.control-center,.control-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.control-center{
+  justify-content:center;
+}
+.control-right{
+  justify-content:flex-end;
+}
+.ctrl-btn{
+  border:1px solid rgba(168,85,247,.26);
+  background:rgba(168,85,247,.12);
+  color:#f5f3ff;
+  border-radius:999px;
+  min-width:42px;
+  height:42px;
+  padding:0 12px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  font-weight:900;
+  transition:transform .15s, background .2s, border-color .2s;
+}
+.ctrl-btn:hover{transform:translateY(-1px);background:rgba(168,85,247,.2)}
+.ctrl-btn.active{
+  border-color:#f97316;
+  color:#fed7aa;
+  background:rgba(249,115,22,.14);
+}
+.ctrl-play{
+  width:58px;
+  height:58px;
+  border:0;
+  background:linear-gradient(135deg,#fff7ed,#fdba74,#f97316);
+  color:#13051f;
+  box-shadow:0 18px 35px rgba(249,115,22,.24);
+  font-size:22px;
+}
+.speed-btn{
+  min-width:54px;
+  font-size:13px;
+}
+.volume-wrap{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.volume-slider{
+  width:72px;
+  accent-color:#f97316;
+}
+.premium-download{
+  color:#fff7ed;
+  text-decoration:none;
+  border:1px solid rgba(249,115,22,.34);
+  background:rgba(249,115,22,.12);
+  border-radius:999px;
+  padding:10px 14px;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-size:13px;
+  font-weight:800;
+}
+.trim-panel{
+  display:none;
+  border:1px solid rgba(249,115,22,.25);
+  background:rgba(249,115,22,.08);
+  border-radius:16px;
+  padding:12px;
+  color:#fed7aa;
+  font-size:13px;
+  line-height:1.45;
+}
+.trim-panel.show{display:block}
+.trim-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:10px;
+}
+@media(max-width:520px){.trim-row{grid-template-columns:1fr}}
+.trim-row input{
+  width:100%;
+  border:1px solid rgba(249,115,22,.22);
+  background:rgba(5,2,10,.55);
+  color:#fff7ed;
+  border-radius:12px;
+  padding:10px;
+}
+
+.player-row{display:flex;align-items:center;gap:14px}
+@media(max-width:520px){.player-row{flex-wrap:wrap}.dl{width:100%;justify-content:center}}
+.play-btn{
+  width:52px;height:52px;border-radius:50%;border:0;cursor:pointer;
+  background:linear-gradient(135deg,#f5f3ff,#c084fc);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.play-btn svg{fill:#13051f}
+.prog-col{flex:1;display:flex;flex-direction:column;gap:7px;min-width:140px}
+.prog-bg{height:6px;background:rgba(255,255,255,.1);border-radius:999px;cursor:pointer}
+.prog-fill{height:100%;background:linear-gradient(90deg,#f5f3ff,#c084fc);border-radius:999px;width:0%}
+.time-row{display:flex;justify-content:space-between;color:var(--dim);font-size:12px}
+.dl{
+  color:#e9d5ff;text-decoration:none;border:1px solid rgba(168,85,247,.28);
+  background:rgba(168,85,247,.12);border-radius:999px;padding:10px 14px;
+  display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;
+}
+details{
+  border:1px solid rgba(168,85,247,.18);
+  border-radius:20px; overflow:hidden;
+  background:rgba(255,255,255,.025);
+}
+summary{
+  padding:16px; cursor:pointer; list-style:none;
+  color:#d8b4fe; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; font-weight:800;
+}
+summary::-webkit-details-marker{display:none}
+.adv{padding:0 16px 16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media(max-width:600px){.adv{grid-template-columns:1fr}}
+.adv-item label{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.adv-v{color:#f5f3ff}
+input[type=range]{width:100%;accent-color:#a855f7}
+.side{
+  display:grid; gap:18px; position:sticky; top:18px;
+}
+@media(max-width:980px){.side{position:static}}
+.side-card{
+  padding:20px;
+  background:linear-gradient(180deg,rgba(20,10,38,.9),rgba(8,3,16,.9));
+  border:1px solid rgba(168,85,247,.22);
+  border-radius:24px;
+}
+.side-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.side-title h3{font-size:15px;letter-spacing:.4px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  font-size:12px;color:#d8b4fe;border:1px solid rgba(168,85,247,.25);
+  background:rgba(168,85,247,.1);border-radius:999px;padding:8px 10px;
+}
+.history{display:grid;gap:10px;max-height:420px;overflow:auto;padding-right:4px}
+.hist-item{
+  border:1px solid rgba(168,85,247,.16);
+  background:rgba(255,255,255,.035);
+  border-radius:16px;padding:12px;display:grid;gap:8px;
+}
+.hist-text{color:#e9d5ff;font-size:13px;line-height:1.45}
+.hist-meta{color:var(--dim);font-size:11px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.hist-actions{display:flex;gap:8px;flex-wrap:wrap}
+.small-link{
+  color:#fff;text-decoration:none;border:1px solid rgba(168,85,247,.25);
+  background:rgba(168,85,247,.12);border-radius:999px;padding:7px 10px;font-size:12px;
+}
+.footer{
+  color:var(--dim);text-align:center;font-size:12px;margin:34px 0 10px;
+}
+.footer a{color:#c4b5fd;text-decoration:none}
+.toast{
+  position:fixed;left:50%;bottom:20px;transform:translateX(-50%);
+  background:#160b28;border:1px solid rgba(168,85,247,.35);color:#fff;
+  padding:12px 16px;border-radius:999px;box-shadow:var(--shadow);
+  opacity:0;pointer-events:none;transition:opacity .2s, transform .2s;z-index:50;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+
+.voice-list{display:grid;gap:12px}
+.voice-item{
+  border:1px solid rgba(168,85,247,.18);
+  background:rgba(255,255,255,.04);
+  border-radius:18px;
+  padding:14px;
+  display:grid;
+  gap:6px;
+}
+.voice-name{font-weight:800;color:#f5f3ff}
+.voice-meta{font-size:12px;color:var(--muted);line-height:1.5}
+.inline-actions{display:flex;gap:10px;flex-wrap:wrap}
+.small-btn{
+  border:1px solid rgba(168,85,247,.32);
+  background:rgba(168,85,247,.14);
+  color:#f5f3ff;
+  border-radius:14px;
+  padding:10px 12px;
+  font-weight:700;
+  cursor:pointer;
+}
+.small-btn:disabled{opacity:.55;cursor:not-allowed}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <section class="hero">
+    <div class="panel brand">
+      <div class="badge"><span class="pulse" id="dot"></span> Railson dev · OmniVoice Premium</div>
+      <h1><span class="grad">Clone e gere</span><br>áudios com IA</h1>
+      <p class="subtitle">
+        Interface premium integrada ao Colab via Cloudflare Tunnel, com Gemini para melhorar textos,
+        status em tempo real, histórico e saída WAV em 44.1kHz.
+      </p>
+    </div>
+
+    <div class="panel endpoint-card">
+      <div class="label">Endpoint automático</div>
+      <div class="endpoint-line">
+        <input class="input" type="text" id="ep-url" placeholder="Carregando api_url.json..." oninput="saveUrl(this.value)">
+        <button class="mini-btn" onclick="loadEndpoint(true)">Atualizar</button>
+      </div>
+      <div class="chips">
+        <span class="chip" id="cache-chip">Cache: verificando</span>
+        <span class="chip" id="health-chip">API: aguardando</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid-main">
+    <div class="card">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('clone',this)">Clonar Voz</button>
+        <button class="tab" onclick="switchTab('design',this)">Criar Voz</button>
+        <button class="tab" onclick="switchTab('audio',this)">Áudio → Voz</button>
+        <button class="tab" onclick="switchTab('voices',this)">Minhas Vozes</button>
+      </div>
+
+      <div class="pane active" id="pane-clone">
+        <div class="field">
+          <label class="label">Texto para narração</label>
+          <textarea id="vc-text" placeholder="Digite o texto que será falado na voz clonada..."></textarea>
+        </div>
+
+        <div class="action-row">
+          <button class="ai-btn" id="vc-ai" onclick="melhorarTexto('vc')">✨ Melhorar texto com Gemini</button>
+          <button class="ghost-btn" onclick="copiarTexto('vc')">Copiar texto</button>
+        </div>
+
+        <div class="field">
+          <label class="label">Áudio de referência</label>
+          <div class="upload-zone" id="vc-zone">
+            <input type="file" id="vc-file" accept="audio/*" onchange="onFile('vc')">
+            <div class="upload-icon">🎙️</div>
+            <p id="vc-fname">Clique para enviar o áudio de referência</p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label class="label">Usar voz salva</label>
+            <select id="vc-voice">
+              <option value="">Nenhuma, usar áudio enviado agora</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="label">Idioma</label>
+            <select id="vc-lang">
+              <option>Auto</option>
+              <option selected>Portuguese (pt)</option>
+              <option>English (en)</option>
+              <option>Spanish (es)</option>
+              <option>French (fr)</option>
+              <option>German (de)</option>
+              <option>Italian (it)</option>
+              <option>Japanese (ja)</option>
+              <option>Chinese (zh)</option>
+              <option>Korean (ko)</option>
+              <option>Russian (ru)</option>
+              <option>Arabic (ar)</option>
+              <option>Hindi (hi)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="label">Transcrição referência opcional</label>
+            <input class="input" id="vc-ref" placeholder="Deixe vazio para transcrição automática">
+          </div>
+        </div>
+
+        <div class="inline-actions">
+          <button class="small-btn" id="vc-trans-btn" onclick="transcreverReferencia()">🎙 Transcrever referência</button>
+          <button class="small-btn" onclick="loadVoices()">🔄 Atualizar vozes</button>
+        </div>
+
+        <button class="main-btn" id="vc-btn" onclick="gerar('clone')">Gerar áudio</button>
+
+        <div class="status-box">
+          <div class="status-top">
+            <p class="status" id="vc-st">Aguardando texto e áudio de referência.</p>
+            <span class="chip" id="vc-job">Idle</span>
+          </div>
+          <div class="progress-bg"><div class="progress-fill" id="vc-progress"></div></div>
+        </div>
+
+        <div class="player" id="vc-player">
+          <div class="premium-player">
+            <div class="wave-wrap" id="vc-bar" onclick="seek('vc',event)">
+              <div class="wave-progress-line" id="vc-fill"></div>
+              <div class="wave-bars" id="vc-wave"></div>
+            </div>
+
+            <div class="premium-time-row">
+              <span id="vc-cur">0:00</span>
+              <span id="vc-dur">0:00</span>
+            </div>
+
+            <div class="player-controls">
+              <div class="control-left">
+                <div class="volume-wrap">
+                  <button class="ctrl-btn" id="vc-vol-btn" onclick="toggleMute('vc')" title="Volume">🔊</button>
+                  <input class="volume-slider" id="vc-volume" type="range" min="0" max="1" step="0.05" value="1" oninput="setVolume('vc',this.value)">
+                </div>
+                <button class="ctrl-btn speed-btn" id="vc-speed" onclick="cycleSpeed('vc')" title="Velocidade">1x</button>
+              </div>
+
+              <div class="control-center">
+                <button class="ctrl-btn" onclick="rewindAudio('vc')" title="Voltar 5 segundos">⏮️</button>
+                <button class="ctrl-btn ctrl-play" onclick="togglePlay('vc')" title="Reproduzir/Pausar">
+                  <span id="vc-icon">▶</span>
+                </button>
+                <button class="ctrl-btn" onclick="forwardAudio('vc')" title="Avançar 5 segundos">⏭️</button>
+              </div>
+
+              <div class="control-right">
+                <button class="ctrl-btn" id="vc-loop" onclick="toggleLoop('vc')" title="Loop">🔄</button>
+                <button class="ctrl-btn" id="vc-trim" onclick="toggleTrim('vc')" title="Cortar/Trim">✂️</button>
+                <a class="premium-download" id="vc-dl" href="#" download="audio.wav">Baixar</a>
+              </div>
+            </div>
+
+            <div class="trim-panel" id="vc-trim-panel">
+              Modo corte visual ativado. Ajuste início e fim para marcar o trecho desejado.
+              <div class="trim-row">
+                <input id="vc-trim-start" type="number" min="0" step="0.1" value="0" placeholder="Início em segundos">
+                <input id="vc-trim-end" type="number" min="0" step="0.1" value="0" placeholder="Fim em segundos">
+              </div>
+            </div>
+          </div>
+        </div>
+              <div class="time-row"><span id="vc-cur">0:00</span><span id="vc-dur">0:00</span></div>
+            </div>
+            <a class="dl" id="vc-dl" href="#" download="audio.wav">Baixar</a>
+          </div>
+        </div>
+
+        <details>
+          <summary>Configurações avançadas</summary>
+          <div class="adv">
+            <div class="adv-item">
+              <label>Steps <span class="adv-v" id="vc-ns-v">32</span></label>
+              <input type="range" id="vc-ns" min="8" max="64" value="32" oninput="vcNsV.textContent=this.value">
+            </div>
+            <div class="adv-item">
+              <label>Guidance <span class="adv-v" id="vc-gs-v">3.0</span></label>
+              <input type="range" id="vc-gs" min="0" max="10" step="0.1" value="3" oninput="vcGsV.textContent=parseFloat(this.value).toFixed(1)">
+            </div>
+            <div class="adv-item">
+              <label>Denoise <span class="adv-v" id="vc-dn-v">0.80</span></label>
+              <input type="range" id="vc-dn" min="0" max="1" step="0.05" value="0.8" oninput="vcDnV.textContent=parseFloat(this.value).toFixed(2)">
+            </div>
+            <div class="adv-item">
+              <label>Speed <span class="adv-v" id="vc-sp-v">1.00</span></label>
+              <input type="range" id="vc-sp" min="0.5" max="2" step="0.05" value="1" oninput="vcSpV.textContent=parseFloat(this.value).toFixed(2)">
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <div class="pane" id="pane-design">
+        <div class="field">
+          <label class="label">Texto para sintetizar</label>
+          <textarea id="vd-text" placeholder="Digite o texto para criar uma nova voz..."></textarea>
+        </div>
+
+        <div class="action-row">
+          <button class="ai-btn" id="vd-ai" onclick="melhorarTexto('vd')">✨ Melhorar texto com Gemini</button>
+          <button class="ghost-btn" onclick="copiarTexto('vd')">Copiar texto</button>
+        </div>
+
+        <div class="row3">
+          <div class="field"><label class="label">Idioma</label><select id="vd-lang"><option>Auto</option><option selected>Portuguese (pt)</option><option>English (en)</option><option>Spanish (es)</option><option>French (fr)</option><option>German (de)</option><option>Italian (it)</option><option>Japanese (ja)</option><option>Chinese (zh)</option><option>Korean (ko)</option></select></div>
+          <div class="field"><label class="label">Gênero</label><select id="vd-gender"><option>Auto</option><option>male</option><option>female</option></select></div>
+          <div class="field"><label class="label">Idade</label><select id="vd-age"><option>Auto</option><option>child</option><option>teenager</option><option>young adult</option><option>middle-aged</option><option>elderly</option></select></div>
+          <div class="field"><label class="label">Tom</label><select id="vd-pitch"><option>Auto</option><option>very low pitch</option><option>low pitch</option><option>moderate pitch</option><option>high pitch</option><option>very high pitch</option></select></div>
+          <div class="field"><label class="label">Estilo</label><select id="vd-style"><option>Auto</option><option>whisper</option></select></div>
+          <div class="field"><label class="label">Sotaque</label><select id="vd-accent"><option>Auto</option><option>portuguese accent</option><option>american accent</option><option>british accent</option><option>australian accent</option><option>canadian accent</option><option>indian accent</option></select></div>
+        </div>
+
+        <button class="main-btn" id="vd-btn" onclick="gerar('design')">Gerar áudio</button>
+
+        <div class="status-box">
+          <div class="status-top">
+            <p class="status" id="vd-st">Aguardando texto e estilo de voz.</p>
+            <span class="chip" id="vd-job">Idle</span>
+          </div>
+          <div class="progress-bg"><div class="progress-fill" id="vd-progress"></div></div>
+        </div>
+
+        <div class="player" id="vd-player">
+          <div class="premium-player">
+            <div class="wave-wrap" id="vd-bar" onclick="seek('vd',event)">
+              <div class="wave-progress-line" id="vd-fill"></div>
+              <div class="wave-bars" id="vd-wave"></div>
+            </div>
+
+            <div class="premium-time-row">
+              <span id="vd-cur">0:00</span>
+              <span id="vd-dur">0:00</span>
+            </div>
+
+            <div class="player-controls">
+              <div class="control-left">
+                <div class="volume-wrap">
+                  <button class="ctrl-btn" id="vd-vol-btn" onclick="toggleMute('vd')" title="Volume">🔊</button>
+                  <input class="volume-slider" id="vd-volume" type="range" min="0" max="1" step="0.05" value="1" oninput="setVolume('vd',this.value)">
+                </div>
+                <button class="ctrl-btn speed-btn" id="vd-speed" onclick="cycleSpeed('vd')" title="Velocidade">1x</button>
+              </div>
+
+              <div class="control-center">
+                <button class="ctrl-btn" onclick="rewindAudio('vd')" title="Voltar 5 segundos">⏮️</button>
+                <button class="ctrl-btn ctrl-play" onclick="togglePlay('vd')" title="Reproduzir/Pausar">
+                  <span id="vd-icon">▶</span>
+                </button>
+                <button class="ctrl-btn" onclick="forwardAudio('vd')" title="Avançar 5 segundos">⏭️</button>
+              </div>
+
+              <div class="control-right">
+                <button class="ctrl-btn" id="vd-loop" onclick="toggleLoop('vd')" title="Loop">🔄</button>
+                <button class="ctrl-btn" id="vd-trim" onclick="toggleTrim('vd')" title="Cortar/Trim">✂️</button>
+                <a class="premium-download" id="vd-dl" href="#" download="audio.wav">Baixar</a>
+              </div>
+            </div>
+
+            <div class="trim-panel" id="vd-trim-panel">
+              Modo corte visual ativado. Ajuste início e fim para marcar o trecho desejado.
+              <div class="trim-row">
+                <input id="vd-trim-start" type="number" min="0" step="0.1" value="0" placeholder="Início em segundos">
+                <input id="vd-trim-end" type="number" min="0" step="0.1" value="0" placeholder="Fim em segundos">
+              </div>
+            </div>
+          </div>
+        </div>
+              <div class="time-row"><span id="vd-cur">0:00</span><span id="vd-dur">0:00</span></div>
+            </div>
+            <a class="dl" id="vd-dl" href="#" download="audio.wav">Baixar</a>
+          </div>
+        </div>
+
+        <details>
+          <summary>Configurações avançadas</summary>
+          <div class="adv">
+            <div class="adv-item"><label>Steps <span class="adv-v" id="vd-ns-v">32</span></label><input type="range" id="vd-ns" min="8" max="64" value="32" oninput="vdNsV.textContent=this.value"></div>
+            <div class="adv-item"><label>Guidance <span class="adv-v" id="vd-gs-v">3.0</span></label><input type="range" id="vd-gs" min="0" max="10" step="0.1" value="3" oninput="vdGsV.textContent=parseFloat(this.value).toFixed(1)"></div>
+            <div class="adv-item"><label>Speed <span class="adv-v" id="vd-sp-v">1.00</span></label><input type="range" id="vd-sp" min="0.5" max="2" step="0.05" value="1" oninput="vdSpV.textContent=parseFloat(this.value).toFixed(2)"></div>
+          </div>
+        </details>
+      </div>
+
+      <div class="pane" id="pane-audio">
+        <div class="field">
+          <label class="label">Áudio de entrada</label>
+          <div class="upload-zone" id="av-zone">
+            <input type="file" id="av-file" accept="audio/*" onchange="onFile('av')">
+            <div class="upload-icon">🎧</div>
+            <p id="av-fname">Envie o áudio que será transcrito e refeito com a voz escolhida</p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label class="label">Voz clonada salva</label>
+            <select id="av-voice">
+              <option value="">Carregue ou salve uma voz primeiro</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="label">Idioma</label>
+            <select id="av-lang">
+              <option>Auto</option>
+              <option selected>Portuguese (pt)</option>
+              <option>English (en)</option>
+              <option>Spanish (es)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">Transcrição detectada</label>
+          <textarea id="av-transcript" placeholder="Depois de converter, a transcrição do áudio aparecerá aqui." readonly></textarea>
+        </div>
+
+        <div class="inline-actions">
+          <button class="small-btn" id="av-trans-btn" onclick="transcreverAudioEntrada()">🎙 Só transcrever</button>
+          <button class="small-btn" onclick="loadVoices()">🔄 Atualizar vozes</button>
+        </div>
+
+        <button class="main-btn" id="av-btn" onclick="audioParaVoz()">Converter áudio para voz</button>
+
+        <div class="status-box">
+          <div class="status-top">
+            <p class="status" id="av-st">Aguardando áudio de entrada e voz salva.</p>
+            <span class="chip" id="av-job">Idle</span>
+          </div>
+          <div class="progress-bg"><div class="progress-fill" id="av-progress"></div></div>
+        </div>
+
+        <div class="player" id="av-player">
+          <div class="premium-player">
+            <div class="wave-wrap" id="av-bar" onclick="seek('av',event)">
+              <div class="wave-progress-line" id="av-fill"></div>
+              <div class="wave-bars" id="av-wave"></div>
+            </div>
+
+            <div class="premium-time-row">
+              <span id="av-cur">0:00</span>
+              <span id="av-dur">0:00</span>
+            </div>
+
+            <div class="player-controls">
+              <div class="control-left">
+                <div class="volume-wrap">
+                  <button class="ctrl-btn" id="av-vol-btn" onclick="toggleMute('av')" title="Volume">🔊</button>
+                  <input class="volume-slider" id="av-volume" type="range" min="0" max="1" step="0.05" value="1" oninput="setVolume('av',this.value)">
+                </div>
+                <button class="ctrl-btn speed-btn" id="av-speed" onclick="cycleSpeed('av')" title="Velocidade">1x</button>
+              </div>
+
+              <div class="control-center">
+                <button class="ctrl-btn" onclick="rewindAudio('av')" title="Voltar 5 segundos">⏮️</button>
+                <button class="ctrl-btn ctrl-play" onclick="togglePlay('av')" title="Reproduzir/Pausar">
+                  <span id="av-icon">▶</span>
+                </button>
+                <button class="ctrl-btn" onclick="forwardAudio('av')" title="Avançar 5 segundos">⏭️</button>
+              </div>
+
+              <div class="control-right">
+                <button class="ctrl-btn" id="av-loop" onclick="toggleLoop('av')" title="Loop">🔄</button>
+                <button class="ctrl-btn" id="av-trim" onclick="toggleTrim('av')" title="Cortar/Trim">✂️</button>
+                <a class="premium-download" id="av-dl" href="#" download="audio.wav">Baixar</a>
+              </div>
+            </div>
+
+            <div class="trim-panel" id="av-trim-panel">
+              Modo corte visual ativado. Ajuste início e fim para marcar o trecho desejado.
+              <div class="trim-row">
+                <input id="av-trim-start" type="number" min="0" step="0.1" value="0" placeholder="Início em segundos">
+                <input id="av-trim-end" type="number" min="0" step="0.1" value="0" placeholder="Fim em segundos">
+              </div>
+            </div>
+          </div>
+        </div>
+              <div class="time-row"><span id="av-cur">0:00</span><span id="av-dur">0:00</span></div>
+            </div>
+            <a class="dl" id="av-dl" href="#" download="audio.wav">Baixar</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="pane" id="pane-voices">
+        <div class="field">
+          <label class="label">Nome da voz</label>
+          <input class="input" id="sv-name" placeholder="Ex: Narradora, Minha Voz, Voz Comercial">
+        </div>
+
+        <div class="field">
+          <label class="label">Áudio de referência para salvar</label>
+          <div class="upload-zone" id="sv-zone">
+            <input type="file" id="sv-file" accept="audio/*" onchange="onFile('sv')">
+            <div class="upload-icon">🗣️</div>
+            <p id="sv-fname">Envie uma amostra limpa da voz</p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label class="label">Idioma</label>
+            <select id="sv-lang">
+              <option>Auto</option>
+              <option selected>Portuguese (pt)</option>
+              <option>English (en)</option>
+              <option>Spanish (es)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="label">Transcrição da referência</label>
+            <input class="input" id="sv-ref" placeholder="Opcional. Se vazio, tenta transcrever.">
+          </div>
+        </div>
+
+        <div class="inline-actions">
+          <button class="small-btn" id="sv-trans-btn" onclick="transcreverSalvarVoz()">🎙 Transcrever referência</button>
+          <button class="small-btn" onclick="loadVoices()">🔄 Recarregar lista</button>
+        </div>
+
+        <button class="main-btn" id="sv-btn" onclick="salvarVoz()">Salvar voz</button>
+
+        <div class="status-box">
+          <div class="status-top">
+            <p class="status" id="sv-st">Salve vozes para reutilizar no clone e no áudio para voz.</p>
+            <span class="chip" id="sv-job">Idle</span>
+          </div>
+          <div class="progress-bg"><div class="progress-fill" id="sv-progress"></div></div>
+        </div>
+
+        <div class="voice-list" id="voices-list">
+          <p class="status">Nenhuma voz carregada ainda.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <aside class="side">
+      <div class="side-card">
+        <div class="side-title">
+          <h3>Status da API</h3>
+          <button class="ghost-btn" onclick="checkStatus()">Checar</button>
+        </div>
+        <div class="chips">
+          <span class="chip" id="model-status">Modelo: --</span>
+          <span class="chip" id="job-status">Geração: --</span>
+          <span class="chip" id="hist-count">Histórico: --</span>
+        </div>
+      </div>
+
+      <div class="side-card">
+        <div class="side-title">
+          <h3>Histórico</h3>
+          <button class="ghost-btn" onclick="loadHistory()">Recarregar</button>
+        </div>
+        <div class="history" id="history">
+          <p class="status">Nenhum áudio carregado ainda.</p>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <p class="footer">
+    Railson dev · Lucro A Lucro · <a href="https://youtube.com/@canalwfreitas" target="_blank">YouTube</a> · <a href="https://www.instagram.com/0xwsf/" target="_blank">Instagram</a>
+  </p>
+</div>
+
+<audio id="vc-audio" style="display:none"></audio>
+<audio id="vd-audio" style="display:none"></audio>
+<audio id="av-audio" style="display:none"></audio>
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY = 'lal_ep';
+const API_JSON_URL = 'api_url.json';
+let statusTimer = null;
+let activePrefix = null;
+
+const $ = (id) => document.getElementById(id);
+
+const vcNsV=$('vc-ns-v'), vcGsV=$('vc-gs-v'), vcDnV=$('vc-dn-v'), vcSpV=$('vc-sp-v');
+const vdNsV=$('vd-ns-v'), vdGsV=$('vd-gs-v'), vdSpV=$('vd-sp-v');
+
+function toast(msg){
+  const el=$('toast');
+  el.textContent=msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2600);
+}
+
+function saveUrl(v){ localStorage.setItem(KEY, v); setDot(''); }
+function getUrl(){ return $('ep-url').value.trim(); }
+function baseApi(){
+  const url=getUrl();
+  return url.replace(/\/api\/gerar\/?$/,'').replace(/\/$/,'');
+}
+function api(path){
+  return baseApi() + path;
+}
+
+function setDot(s){
+  const d=$('dot');
+  d.className='pulse' + (s ? ' ' + s : '');
+}
+
+async function loadEndpoint(manual=false){
+  const saved=localStorage.getItem(KEY);
+  if(saved && !getUrl()) $('ep-url').value=saved;
+
+  try{
+    const res=await fetch(API_JSON_URL + '?ts=' + Date.now(), {cache:'no-store'});
+    const data=await res.json();
+    if(data.url){
+      $('ep-url').value=data.url;
+      localStorage.setItem(KEY, data.url);
+      setDot('ok');
+      if(manual) toast('Endpoint atualizado.');
+      checkStatus();
+      return;
+    }
+  }catch(e){}
+
+  if(saved){
+    $('ep-url').value=saved;
+    if(manual) toast('Usando endpoint salvo no aparelho.');
+  }else if(manual){
+    toast('Não foi possível carregar api_url.json.');
+  }
+}
+
+function switchTab(name, btn){
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  $('pane-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+function onFile(p){
+  const f=$(p+'-file').files[0];
+  if(!f) return;
+  $(p+'-zone').classList.add('filled');
+  const el=$(p+'-fname');
+  el.textContent=f.name;
+  el.className='fname';
+}
+
+function setSt(p,msg,cls=''){
+  const el=$(p+'-st');
+  el.textContent=msg;
+  el.className='status' + (cls ? ' ' + cls : '');
+}
+
+function setProgress(p,percent){
+  $(p+'-progress').style.width = Math.max(0, Math.min(100, percent || 0)) + '%';
+}
+
+function buttonLabel(p){
+  if(p==='av') return 'Converter áudio para voz';
+  if(p==='sv') return 'Salvar voz';
+  return 'Gerar áudio';
+}
+
+function loadingLabel(p){
+  if(p==='av') return '<span class="spin"></span> Convertendo...';
+  if(p==='sv') return '<span class="spin"></span> Salvando...';
+  return '<span class="spin"></span> Gerando áudio...';
+}
+
+function restore(p){
+  const btn=$(p+'-btn');
+  btn.disabled=false;
+  btn.innerHTML=buttonLabel(p);
+}
+
+function setLoading(p,on){
+  const btn=$(p+'-btn');
+  btn.disabled=on;
+  btn.innerHTML=on ? loadingLabel(p) : buttonLabel(p);
+}
+
+function stopStatusPoll(){
+  if(statusTimer) clearInterval(statusTimer);
+  statusTimer=null;
+}
+
+function startStatusPoll(p){
+  activePrefix=p;
+  stopStatusPoll();
+  statusTimer=setInterval(()=>checkStatus(p),2500);
+  checkStatus(p);
+}
+
+async function checkStatus(p=activePrefix){
+  const url=getUrl();
+  if(!url) return;
+  try{
+    const res=await fetch(api('/api/status') + '?ts=' + Date.now(), {cache:'no-store'});
+    const data=await res.json();
+    if(!data.ok) throw new Error('status inválido');
+
+    setDot('ok');
+    $('health-chip').textContent='API: online';
+    $('cache-chip').textContent=data.model_cache_ready ? 'Cache: ativo' : 'Cache: carregando';
+    $('model-status').textContent=data.model_cache_ready ? 'Modelo: cache ativo' : 'Modelo: carregando';
+    $('job-status').textContent='Geração: ' + (data.job?.status || '--');
+    $('hist-count').textContent='Histórico: ' + (data.history_count ?? 0);
+
+    if(p && data.job){
+      $(p+'-job').textContent=data.job.status || 'Idle';
+      setProgress(p, data.job.progress || 0);
+      if(data.job.message) setSt(p, data.job.message, data.job.status === 'error' ? 'err' : '');
+      if(['done','error','idle'].includes(data.job.status)) stopStatusPoll();
+    }
+  }catch(e){
+    $('health-chip').textContent='API: offline';
+    setDot('err');
+  }
+}
+
+async function melhorarTexto(p){
+  const textEl=$(p+'-text');
+  const original=textEl.value.trim();
+  if(!getUrl()){ setSt(p,'Endpoint não carregado ainda.','err'); return; }
+  if(!original){ setSt(p,'Digite um texto primeiro.','err'); return; }
+
+  const btn=$(p+'-ai');
+  btn.disabled=true;
+  btn.innerHTML='<span class="spin"></span> Melhorando...';
+  setSt(p,'Gemini melhorando texto para narração...','');
+
+  try{
+    const res=await fetch(api('/api/melhorar-texto'),{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({text:original, objetivo:p === 'vc' ? 'narração para voz clonada' : 'narração com voz criada'})
+    });
+    const data=await res.json();
+    if(!res.ok || !data.ok) throw new Error(data.erro || 'Erro ao melhorar texto.');
+    textEl.value=data.text;
+    setSt(p,'Texto melhorado com sucesso.','ok');
+  }catch(e){
+    setSt(p, e.message || 'Erro ao conectar no Gemini.', 'err');
+  }finally{
+    btn.disabled=false;
+    btn.innerHTML='✨ Melhorar texto com Gemini';
+  }
+}
+
+async function copiarTexto(p){
+  const txt=$(p+'-text').value;
+  if(!txt.trim()) return toast('Nada para copiar.');
+  try{
+    await navigator.clipboard.writeText(txt);
+    toast('Texto copiado.');
+  }catch(e){
+    toast('Não foi possível copiar.');
+  }
+}
+
+async function gerar(mode){
+  const p=mode==='clone'?'vc':'vd';
+  const url=getUrl();
+  if(!url){ setSt(p,'Cole ou carregue a URL do endpoint antes de gerar.','err'); return; }
+
+  const text=$(p+'-text').value.trim();
+  if(!text){ setSt(p,'Digite algum texto.','err'); return; }
+
+  const fd=new FormData();
+  fd.append('mode', mode);
+  fd.append('text', text);
+
+  if(mode==='clone'){
+    const f=$('vc-file').files[0];
+    const voiceId=$('vc-voice') ? $('vc-voice').value : '';
+    if(!f && !voiceId){ setSt(p,'Envie um áudio de referência ou selecione uma voz salva.','err'); return; }
+    if(f) fd.append('ref_audio', f);
+    if(voiceId) fd.append('voice_id', voiceId);
+    fd.append('language', $('vc-lang').value);
+    fd.append('ref_text', $('vc-ref').value);
+    fd.append('num_step', $('vc-ns').value);
+    fd.append('guidance_scale', $('vc-gs').value);
+    fd.append('denoise', $('vc-dn').value);
+    fd.append('speed', $('vc-sp').value);
+  }else{
+    fd.append('language', $('vd-lang').value);
+    const attrs=['vd-gender','vd-age','vd-pitch','vd-style','vd-accent']
+      .map(id=>$(id).value).filter(v=>v!=='Auto').join(', ');
+    fd.append('instruct', attrs);
+    fd.append('num_step', $('vd-ns').value);
+    fd.append('guidance_scale', $('vd-gs').value);
+    fd.append('speed', $('vd-sp').value);
+  }
+
+  setLoading(p,true);
+  setProgress(p,5);
+  setSt(p,'Enviando para o servidor...', '');
+  startStatusPoll(p);
+
+  try{
+    const res=await fetch(url,{method:'POST',body:fd});
+    const data=await res.json();
+
+    if(!res.ok || !data.ok){
+      setSt(p,data.erro || 'Erro desconhecido.','err');
+      setDot('err');
+      return;
+    }
+
+    setDot('ok');
+    setProgress(p,100);
+    setSt(p,data.status || 'Áudio gerado com sucesso.','ok');
+    loadAudio(p,'data:audio/wav;base64,' + data.audio_b64);
+    loadHistory();
+  }catch(e){
+    setSt(p,'Não foi possível conectar ao servidor.','err');
+    setDot('err');
+  }finally{
+    restore(p);
+    setTimeout(()=>stopStatusPoll(),2500);
+  }
+}
+
+
+async function transcreverArquivo(file, language, targetInputId, statusPrefix){
+  if(!getUrl()){ setSt(statusPrefix,'Endpoint não carregado ainda.','err'); return; }
+  if(!file){ setSt(statusPrefix,'Envie um áudio primeiro.','err'); return; }
+
+  const fd=new FormData();
+  fd.append('audio', file);
+  fd.append('language', language || 'Auto');
+
+  setSt(statusPrefix,'Transcrevendo áudio...', '');
+  setProgress(statusPrefix,20);
+  startStatusPoll(statusPrefix);
+
+  try{
+    const res=await fetch(api('/api/transcrever'), {method:'POST', body:fd});
+    const data=await res.json();
+    if(!res.ok || !data.ok) throw new Error(data.erro || 'Erro ao transcrever.');
+    $(targetInputId).value=data.text;
+    setProgress(statusPrefix,100);
+    setSt(statusPrefix,'Transcrição concluída. Revise o texto se quiser.', 'ok');
+  }catch(e){
+    setSt(statusPrefix, e.message || 'Erro na transcrição.', 'err');
+  }finally{
+    setTimeout(()=>stopStatusPoll(),1800);
+  }
+}
+
+async function transcreverReferencia(){
+  const f=$('vc-file').files[0];
+  await transcreverArquivo(f, $('vc-lang').value, 'vc-ref', 'vc');
+}
+
+async function transcreverSalvarVoz(){
+  const f=$('sv-file').files[0];
+  await transcreverArquivo(f, $('sv-lang').value, 'sv-ref', 'sv');
+}
+
+async function transcreverAudioEntrada(){
+  const f=$('av-file').files[0];
+  await transcreverArquivo(f, $('av-lang').value, 'av-transcript', 'av');
+}
+
+async function loadVoices(){
+  if(!getUrl()) return;
+  const selects=['vc-voice','av-voice'];
+  try{
+    const res=await fetch(api('/api/vozes') + '?ts=' + Date.now(), {cache:'no-store'});
+    const data=await res.json();
+    if(!data.ok) throw new Error('vozes inválidas');
+
+    const items=data.items || [];
+    selects.forEach(id=>{
+      const el=$(id);
+      if(!el) return;
+      const first = id === 'vc-voice'
+        ? '<option value="">Nenhuma, usar áudio enviado agora</option>'
+        : '<option value="">Selecione uma voz salva</option>';
+      el.innerHTML = first + items.map(v=>`<option value="${escapeHtml(v.id)}">${escapeHtml(v.name)} · ${escapeHtml(v.language || 'Auto')}</option>`).join('');
+    });
+
+    const list=$('voices-list');
+    if(list){
+      if(!items.length){
+        list.innerHTML='<p class="status">Nenhuma voz salva ainda.</p>';
+      }else{
+        list.innerHTML=items.map(v=>`
+          <div class="voice-item">
+            <div class="voice-name">${escapeHtml(v.name)}</div>
+            <div class="voice-meta">ID: ${escapeHtml(v.id)}<br>Idioma: ${escapeHtml(v.language || 'Auto')}<br>Criada em: ${escapeHtml(v.created_at || '')}</div>
+            <div class="voice-meta">${v.ref_text ? 'Transcrição: ' + escapeHtml(v.ref_text.slice(0,140)) : 'Sem transcrição salva.'}</div>
+          </div>
+        `).join('');
+      }
+    }
+  }catch(e){
+    if($('voices-list')) $('voices-list').innerHTML='<p class="status err">Não foi possível carregar vozes.</p>';
+  }
+}
+
+async function salvarVoz(){
+  if(!getUrl()){ setSt('sv','Endpoint não carregado ainda.','err'); return; }
+  const name=$('sv-name').value.trim();
+  const f=$('sv-file').files[0];
+  if(!name){ setSt('sv','Digite um nome para a voz.','err'); return; }
+  if(!f){ setSt('sv','Envie um áudio de referência.','err'); return; }
+
+  const fd=new FormData();
+  fd.append('name', name);
+  fd.append('language', $('sv-lang').value);
+  fd.append('ref_text', $('sv-ref').value);
+  fd.append('ref_audio', f);
+
+  setLoading('sv', true);
+  setProgress('sv',10);
+  setSt('sv','Salvando voz clonada...', '');
+  startStatusPoll('sv');
+
+  try{
+    const res=await fetch(api('/api/vozes/salvar'), {method:'POST', body:fd});
+    const data=await res.json();
+    if(!res.ok || !data.ok) throw new Error(data.erro || 'Erro ao salvar voz.');
+    setProgress('sv',100);
+    setSt('sv',`Voz "${data.voice.name}" salva com sucesso.`, 'ok');
+    $('sv-name').value='';
+    await loadVoices();
+  }catch(e){
+    setSt('sv', e.message || 'Erro ao salvar voz.', 'err');
+  }finally{
+    restore('sv');
+    setTimeout(()=>stopStatusPoll(),2000);
+  }
+}
+
+async function audioParaVoz(){
+  if(!getUrl()){ setSt('av','Endpoint não carregado ainda.','err'); return; }
+  const f=$('av-file').files[0];
+  const voiceId=$('av-voice').value;
+  if(!f){ setSt('av','Envie o áudio de entrada.','err'); return; }
+  if(!voiceId){ setSt('av','Selecione uma voz salva.','err'); return; }
+
+  const fd=new FormData();
+  fd.append('input_audio', f);
+  fd.append('voice_id', voiceId);
+  fd.append('language', $('av-lang').value);
+  fd.append('num_step', '32');
+  fd.append('guidance_scale', '3');
+  fd.append('denoise', '0.8');
+  fd.append('speed', '1');
+
+  setLoading('av', true);
+  setProgress('av',5);
+  setSt('av','Convertendo áudio para a voz selecionada...', '');
+  startStatusPoll('av');
+
+  try{
+    const res=await fetch(api('/api/audio-para-voz'), {method:'POST', body:fd});
+    const data=await res.json();
+    if(!res.ok || !data.ok) throw new Error(data.erro || 'Erro ao converter áudio.');
+    if(data.transcript) $('av-transcript').value=data.transcript;
+    setProgress('av',100);
+    setSt('av', data.status || 'Áudio convertido com sucesso.', 'ok');
+    loadAudio('av','data:audio/wav;base64,' + data.audio_b64);
+    loadHistory();
+  }catch(e){
+    setSt('av', e.message || 'Erro ao converter áudio.', 'err');
+  }finally{
+    restore('av');
+    setTimeout(()=>stopStatusPoll(),2500);
+  }
+}
+
+
+const audios={};
+
+function loadAudio(p,src){
+  const el=$(p+'-audio');
+  el.src=src;
+  audios[p]=el;
+  $(p+'-dl').href=src;
+
+  el.onloadedmetadata=()=>{
+    $(p+'-dur').textContent=fmt(el.duration);
+    const trimEnd=$(p+'-trim-end');
+    if(trimEnd) trimEnd.value = isFinite(el.duration) ? el.duration.toFixed(1) : 0;
+    $(p+'-player').classList.add('show');
+    buildWaveform(p, el.duration || 20);
+    updateWaveProgress(p);
+  };
+
+  el.ontimeupdate=()=>{
+    if(!el.duration) return;
+    updateWaveProgress(p);
+    $(p+'-cur').textContent=fmt(el.currentTime);
+  };
+
+  el.onplay=()=>icon(p,true);
+  el.onpause=()=>icon(p,false);
+  el.onended=()=>{
+    icon(p,false);
+    updateWaveProgress(p);
+  };
+}
+
+function buildWaveform(p, duration){
+  const wave=$(p+'-wave');
+  if(!wave) return;
+
+  const estimatedBars = Math.max(42, Math.min(96, Math.round((wave.clientWidth || 520) / 7)));
+  let html='';
+  for(let i=0;i<estimatedBars;i++){
+    const seed = Math.sin((i+1)*12.9898) * 43758.5453;
+    const rnd = seed - Math.floor(seed);
+    const smooth = Math.abs(Math.sin(i * 0.34)) * 52;
+    const h = Math.max(14, Math.min(96, 18 + smooth + rnd * 38));
+    html += `<span class="wave-bar" style="height:${h}%"></span>`;
+  }
+  wave.innerHTML=html;
+}
+
+function updateWaveProgress(p){
+  const el=audios[p];
+  if(!el || !el.duration) return;
+
+  const percent = Math.max(0, Math.min(100, (el.currentTime / el.duration) * 100));
+  const fill=$(p+'-fill');
+  if(fill) fill.style.width = percent + '%';
+
+  const bars = document.querySelectorAll(`#${p}-wave .wave-bar`);
+  const activeCount = Math.round((percent / 100) * bars.length);
+  bars.forEach((bar,idx)=>bar.classList.toggle('active', idx < activeCount));
+}
+
+function togglePlay(p){
+  const el=audios[p];
+  if(!el) return;
+  if(el.paused){ el.play(); }
+  else{ el.pause(); }
+}
+
+function icon(p,playing){
+  const iconEl=$(p+'-icon');
+  if(!iconEl) return;
+  iconEl.textContent = playing ? '⏸' : '▶';
+}
+
+function seek(p,e){
+  const el=audios[p]; if(!el || !el.duration) return;
+  const bar=$(p+'-bar');
+  const rect=bar.getBoundingClientRect();
+  const x=(e.clientX || e.touches?.[0]?.clientX || rect.left) - rect.left;
+  el.currentTime=Math.max(0, Math.min(el.duration, (x/rect.width)*el.duration));
+  updateWaveProgress(p);
+}
+
+function rewindAudio(p){
+  const el=audios[p]; if(!el) return;
+  el.currentTime=Math.max(0, el.currentTime - 5);
+  updateWaveProgress(p);
+}
+
+function forwardAudio(p){
+  const el=audios[p]; if(!el || !el.duration) return;
+  el.currentTime=Math.min(el.duration, el.currentTime + 5);
+  updateWaveProgress(p);
+}
+
+function toggleMute(p){
+  const el=audios[p]; if(!el) return;
+  el.muted=!el.muted;
+  const btn=$(p+'-vol-btn');
+  if(btn) btn.textContent=el.muted || el.volume === 0 ? '🔇' : '🔊';
+}
+
+function setVolume(p,value){
+  const el=audios[p]; if(!el) return;
+  el.volume=parseFloat(value);
+  el.muted=el.volume === 0;
+  const btn=$(p+'-vol-btn');
+  if(btn) btn.textContent=el.muted || el.volume === 0 ? '🔇' : '🔊';
+}
+
+function cycleSpeed(p){
+  const el=audios[p]; if(!el) return;
+  const speeds=[1,1.25,1.5,1.75,2,0.75];
+  const current=Number(el.playbackRate || 1);
+  const idx=speeds.findIndex(s=>Math.abs(s-current)<0.01);
+  const next=speeds[(idx+1) % speeds.length];
+  el.playbackRate=next;
+  const btn=$(p+'-speed');
+  if(btn) btn.textContent=(next % 1 === 0 ? next.toFixed(0) : next.toFixed(2).replace(/0$/,'')) + 'x';
+}
+
+function toggleLoop(p){
+  const el=audios[p]; if(!el) return;
+  el.loop=!el.loop;
+  const btn=$(p+'-loop');
+  if(btn) btn.classList.toggle('active', el.loop);
+}
+
+function toggleTrim(p){
+  const panel=$(p+'-trim-panel');
+  const btn=$(p+'-trim');
+  if(!panel) return;
+  panel.classList.toggle('show');
+  if(btn) btn.classList.toggle('active', panel.classList.contains('show'));
+}
+
+function fmt(s){
+  if(!isFinite(s)) return '0:00';
+  return Math.floor(s/60)+':'+Math.floor(s%60).toString().padStart(2,'0');
+}
+
+async function loadHistory(){
+  if(!getUrl()) return;
+  const box=$('history');
+  try{
+    const res=await fetch(api('/api/historico') + '?ts=' + Date.now(), {cache:'no-store'});
+    const data=await res.json();
+    if(!data.ok) throw new Error('histórico inválido');
+    if(!data.items.length){
+      box.innerHTML='<p class="status">Nenhum áudio gerado ainda.</p>';
+      return;
+    }
+    box.innerHTML=data.items.map(item=>{
+      const audioUrl=item.audio_url ? api(item.audio_url) : '';
+      return `
+        <div class="hist-item">
+          <div class="hist-text">${escapeHtml(item.text_preview || 'Áudio gerado')}</div>
+          <div class="hist-meta">
+            <span>${item.mode || '--'}${item.voice_name ? ' · ' + escapeHtml(item.voice_name) : ''} · ${item.duration || 0}s</span>
+            <span>${item.created_at || ''}</span>
+          </div>
+          <div class="hist-actions">
+            ${audioUrl ? `<a class="small-link" href="${audioUrl}" target="_blank">Abrir</a><a class="small-link" href="${audioUrl}" download>Baixar</a>` : '<span class="status warn">Arquivo limpo</span>'}
+          </div>
+        </div>`;
+    }).join('');
+  }catch(e){
+    box.innerHTML='<p class="status err">Não foi possível carregar histórico.</p>';
+  }
+}
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, s=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[s]));
+}
+
+loadEndpoint().then(()=>loadVoices());
+setInterval(()=>loadEndpoint(false),60000);
+setInterval(()=>checkStatus(),30000);
+</script>
+</body>
+</html>
